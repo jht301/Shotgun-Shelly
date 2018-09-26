@@ -52,7 +52,6 @@ public class ExplosionParticleScript : MonoBehaviour {
 
 	public void Exploding(bool because){
 		bool test = because;
-		Debug.Log (because);
 		if(because){
 			
 			myLight.color = redLight;

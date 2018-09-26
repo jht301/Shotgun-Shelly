@@ -20,23 +20,23 @@ public class PlayerMovement : MonoBehaviour {
 	float bullSpawnAng;
 	bool reloading;
 	bool reloaded;
-
+	public float velBoost;
 	public int magSize;
 	GameObject[] bulletIndicators;
 	float damageDelay;
 	public float setDamageDelay;
-
+	public float speedBoost;
 	public float flashLength;
     public int something;
      int flashTimer;
     bool dead;
-
+    public bool boosted; 
 	public float shootShaking;
 	public float damageShaking;
     SpriteRenderer spr;
     Color reg;
 	public GameObject bulletVisHolder;
-
+	public float boostDeceleration;
 
 	public AudioClip shootingSound, reloadingSound;
 
@@ -59,32 +59,34 @@ public class PlayerMovement : MonoBehaviour {
 
 	void Update ()
 	{
+		//Sets damage delay and flashing
 		if (gameObject != null) { 
-			if (damageDelay > 0) {
-				damageDelay -= Time.deltaTime;
-				if (flashTimer % (something * 2) >= something) {
-					spr.color = Color.black;
-				} else {
-					spr.color = Color.white;
-				}
-				flashTimer++;
-			} else {
-				spr.color = reg;
-			}
-		
+//			if (damageDelay > 0) {
+//				damageDelay -= Time.deltaTime;
+//				if (flashTimer % (something * 2) >= something) {
+//					spr.color = Color.black;
+//				} else {
+//					spr.color = Color.white;
+//				}
+//				flashTimer++;
+//			} else {
+//				spr.color = reg;
+//			}
+			
 
+		//Manages delay when reloading
 			if (shootDelay >= 0 && reloading) {
 				
 				shootDelay -= Time.deltaTime;
 
-			} else if (shootDelay <= 0 && reloading) {
+			} else if (shootDelay <= 0 && reloading) {         // refils bullets
 				ManagerScript.me.bullets = magSize;
 				bulletVisHolder.GetComponent<BulletVis>().Reloaded();
 				reloading = false;
 			}
 				
 
-
+		//kills player when died and kills all running functions
 			if (ManagerScript.me.health <= 0) {
 				Destroy (gameObject);
 				EnemyManager.me.StopAllCoroutines ();
@@ -92,18 +94,31 @@ public class PlayerMovement : MonoBehaviour {
 		}
 	}
 
+	/*void OnTouchMoved(Vector2 point)
+	{
+		dir = point;
+	}*/
 
 
-
-    void FixedUpdate() {
+    void FixedUpdate ()
+	{
 		if (gameObject != null) { 
+			if (velBoost > 1) {
+				velBoost -= boostDeceleration;
+
+			} else {
+				velBoost = 1;
+			}
 			if (dir.x != 0 || dir.y != 0) {
-				
+				if (!boosted && dir != storedDir) {
+					velBoost = speedBoost;
+					boosted = true;
+				} 
 				storedDir = dir;
 				rb.rotation = Geo.ToAng (dir.normalized) ;
-				rb.MovePosition (transform.position + dir * speed * Time.fixedDeltaTime);
+				rb.MovePosition (transform.position + dir * velBoost *speed * Time.fixedDeltaTime);
 			} else {
-				rb.MovePosition (transform.position + storedDir * speed * Time.fixedDeltaTime);
+				rb.MovePosition (transform.position + storedDir * velBoost* speed * Time.fixedDeltaTime);
 				rb.rotation = Geo.ToAng (storedDir.normalized) ;
 				shoot = true;
 			}
@@ -153,6 +168,9 @@ public class PlayerMovement : MonoBehaviour {
 
 	}
 
-    
+	void BoostReset ()
+	{
+		boosted = false;
+	}
 }
 

@@ -15,7 +15,6 @@ public class BulletVis : MonoBehaviour {
 	
 	public void Shot(){
 		for(int i = 0; i< startingBullets -ManagerScript.me.bullets; i++){
-			Debug.Log ("i");
 
 			bullets [i].enabled = false;
 		}

@@ -15,7 +15,7 @@ public class ManagerScript : MonoBehaviour {
 	public int health;
 
 	public float screenShakeTimer;
-
+	public bool usingRemote;
 
  	// Use this for initialization
 	void Awake () {
@@ -24,6 +24,8 @@ public class ManagerScript : MonoBehaviour {
 		}else{
 			Destroy ((this));
 		}
+
+
 	}
 	
 	// Update is called once per frame

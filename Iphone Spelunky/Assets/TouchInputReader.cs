@@ -12,13 +12,17 @@ public class TouchInputReader : MonoBehaviour {
 	bool timerRunning;
 	bool shoot;
 	Vector3 [] storage = new Vector3[2];
-	public Vector2 [] storedFingerPos = new Vector2[5];
+	float [] fingerVelocityTime = new float[5];
+	public Vector2 [] storedPosFinger = new Vector2[5];
+	public float fingerVelocity;
     bool changeDir;
 	int frames;
 	public float fingerDistanceNumberThing;
+	public float screenPercentSize;
+	public bool usingRemote;
 	// Use this for initialization
 	void Start () {
-		
+	Debug.Log ("start");
 	}
 	
 	// Update is called once per frame
@@ -31,9 +35,9 @@ public class TouchInputReader : MonoBehaviour {
 			}*/
 			storage [0] = dir;
 			storage [1] = fingerToPlayer;
-		
-			player.SendMessage ("Move", storage, SendMessageOptions.DontRequireReceiver);
+			
 
+			player.SendMessage ("Move", storage, SendMessageOptions.DontRequireReceiver);
         
 
 			if (timerRunning) {
@@ -50,8 +54,9 @@ public class TouchInputReader : MonoBehaviour {
     void OnTouchDown(Vector2 point) {
 		
 		if (player != null) { 
-			for (int i = 0; i < storedFingerPos.Length; i++) {
-				storedFingerPos [i] = point;
+			for (int i = 0; i < storedPosFinger.Length; i++) {
+				storedPosFinger [i] = point;
+				fingerVelocityTime [i] = 0;
 			}
 			shoot = false;
 			initPos = point;
@@ -59,49 +64,94 @@ public class TouchInputReader : MonoBehaviour {
 			fingerDownTimer = 0;
 			timerRunning = true;
 		}
+
     }
-	void OnTouchMoved(Vector2 point) {
-		
-		/*	for (int i = storedFingerPos.Length-1; i > 0; i--) {
-			storedFingerPos [i] = storedFingerPos [i - 1];
-		}
-		for (int x = storedFingerPos.Length-2; x >= 0; x--) {
-			
-		}*/
 
-		/*if (frames % 10 == 0) {
-			storedFingerPos [1] = point;
-			Debug.Log (storedFingerPos [1].magnitude - storedFingerPos [0].magnitude);
-		}
-		if (Mathf.Abs(storedFingerPos [1].magnitude - storedFingerPos [0].magnitude) > fingerDistanceNumberThing) {
-			initPos = storedFingerPos [1];
-			storedFingerPos [0] = storedFingerPos [1];
-		}*/
-		storedFingerPos [0] = point;
-		for (int i = storedFingerPos.Length-1; i > 0; i--) {
-			storedFingerPos [i] = storedFingerPos [i - 1];
-		}
-		for (int i = 0; i < storedFingerPos.Length; i++) {
-		if ((point - storedFingerPos [i]).magnitude > fingerDistanceNumberThing && fingerDownTimer< 10) {
-				dir = (point - storedFingerPos [i]);
-				break;
-			}
-		}
+
+
+//	void OnTouchStay (Vector2 point)
+//	{
+//		Debug.Log ("stay");
+//
+//
+//		finPos = point;
+//		if ((finPos - initPos).magnitude > fingerDistanceNumberThing) {
+//			dir = finPos - initPos;
+//		}
+//		changeDir = true;
+//		initPos = point;
+//
+//
+//	}
+
+
+
+//	void OnTouchMoved (Vector2 point)
+//	{
+//		
+//		/*	for (int i = storedPosFinger.Length-1; i > 0; i--) {
+//			storedPosFinger [i] = storedPosFinger [i - 1];
+//		}
+//		for (int x = storedPosFinger.Length-2; x >= 0; x--) {
+//			
+//		}*/
+//
+//		/*if (frames % 10 == 0) {
+//			storedPosFinger [1] = point;
+//			Debug.Log (storedPosFinger [1].magnitude - storedPosFinger [0].magnitude);
+//		}
+//		if (Mathf.Abs(storedPosFinger [1].magnitude - storedPosFinger [0].magnitude) > fingerDistanceNumberThing) {
+//			initPos = storedPosFinger [1];
+//			storedPosFinger [0] = storedPosFinger [1];
+//		}*/
+//
+////		Vector2 loc1 = point;
+////		float time1 = fingerDownTimer;
+//
+//		storedPosFinger [0] = point; 
+//		fingerVelocityTime [0] = fingerDownTimer;
+//
+//		for (int i = storedPosFinger.Length - 1; i > 0; i--) {
+//			
+//			
+//			storedPosFinger [i] = storedPosFinger [i - 1];
+//			fingerVelocityTime [i] = fingerVelocityTime [i - 1];
+//		}
+//		for (int i = 0; i < storedPosFinger.Length; i++) {
+//			float swipeDistance;
+//			if (usingRemote) {
+//				 swipeDistance = (point - storedPosFinger [i]).magnitude;
+//			} else {
+//				 swipeDistance = (point - storedPosFinger [i]).magnitude/ Screen.dpi;
+//			}
+//			Debug.Log (swipeDistance);
+//			if (swipeDistance > fingerDistanceNumberThing && swipeDistance / fingerVelocityTime [i] >= fingerVelocity) {
+//				Debug.Log ("direction Change"); 
+//				dir = (point - storedPosFinger [i]);
+//				if (player != null) {
+//					player.SendMessage ("Move", storage, SendMessageOptions.DontRequireReceiver);
+//				}
+//
+//				
+//				fingerDownTimer = 0;
+//				break;
+//			}
+//		}
+//	}
+    void OnTouchUp (Vector2 point)
+	{
 		
-			
 		finPos = point;
-		
+		if ((finPos - initPos).magnitude > fingerDistanceNumberThing) {
+			dir = finPos - initPos;
+		}
 		changeDir = true;
-
-
-	}
-    void OnTouchUp(Vector2 point) {
-		
-        finPos = point;
-        changeDir = true;
 		shoot = true;
 		
 		timerRunning = false;
+		if (player != null) {
+			player.SendMessage ("BoostReset", SendMessageOptions.DontRequireReceiver);
+		}
     }
 
 	/*void OnMouseDown(){
